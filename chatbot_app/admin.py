@@ -73,7 +73,6 @@ class DocumentAdmin(admin.ModelAdmin):
             embedding = get_embedding(chunk)  # Replace with your actual embedding method
             DocumentChunk.objects.create(text=chunk, embedding=embedding)
             print(f"Saved chunk with embedding (first 50 chars): {chunk[:50]}...")
-            time.sleep(60)
 
     def clean_text(self, text):
         """
