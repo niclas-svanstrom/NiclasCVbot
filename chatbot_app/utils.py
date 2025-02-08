@@ -1,17 +1,15 @@
-import fitz  # PyMuPDF
-from sentence_transformers import SentenceTransformer
+from openai import OpenAI
+import os
 
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
-def extract_text_from_pdf(pdf_file):
-    """Extracts text and chunks it into smaller parts."""
-    doc = fitz.open(stream=pdf_file.read(), filetype="pdf")
-    text = " ".join([page.get_text("text") for page in doc])
+client = OpenAI(
+    api_key=os.getenv('OPENAI_API_KEY')
+)
 
-    # Chunk text (e.g., split every 500 characters)
-    chunks = [text[i:i+500] for i in range(0, len(text), 500)]
-    return chunks
-
-def embed_text(chunks):
-    """Embeds text chunks using Sentence Transformers."""
-    return model.encode(chunks).tolist()
+def get_embedding(query):
+    response = client.embeddings.create(
+        input=query,
+        model="text-embedding-3-small"
+    )
+    embedding_vector = response.data[0].embedding
+    return embedding_vector

@@ -2,12 +2,13 @@ from django.contrib import admin
 from django import forms
 from django.shortcuts import render
 from django.urls import path
-from .utils import extract_text_from_pdf, embed_text
+from .utils import get_embedding
 from .models import Document, DocumentChunk
 from PyPDF2 import PdfReader
 from io import BytesIO
 from django.http import HttpResponseRedirect
 
+import time
 
 
 from django import forms
@@ -24,39 +25,6 @@ class DocumentUploadForm(forms.Form):
             self.file_content = kwargs['file']
         else:
             self.file_content = None
-
-    def process_file(self):
-        if not self.file_content:
-            raise ValueError("No file content provided.")
-
-        # Extract text from the PDF
-        text = self.extract_text_from_pdf(self.file_content)
-        if not text:
-            print("No text extracted from the PDF.")
-        else:
-            print(f"Extracted text length: {len(text)} characters")
-
-        chunks = self.split_text_into_chunks(text)
-        if not chunks:
-            print("No chunks generated.")
-        else:
-            print(f"Generated {len(chunks)} chunks.")
-        # Generate embeddings and save DocumentChunks
-        for chunk in chunks:
-            embedding = embed_text(chunk)  # Replace with your actual embedding method
-            DocumentChunk.objects.create(text=chunk, embedding=embedding)
-
-    def extract_text_from_pdf(self, file_content):
-        """Extract text from a PDF file."""
-        pdf_reader = PdfReader(BytesIO(file_content))
-        full_text = ""
-        for page in pdf_reader.pages:
-            full_text += page.extract_text()
-        return full_text
-
-    def split_text_into_chunks(self, text, chunk_size=1000):
-        """Split large text into smaller chunks."""
-        return [text[i:i+chunk_size] for i in range(0, len(text), chunk_size)]
 
 class DocumentAdmin(admin.ModelAdmin):
     list_display = ('file',)
@@ -102,9 +70,10 @@ class DocumentAdmin(admin.ModelAdmin):
 
         # Generate embeddings and save DocumentChunks
         for chunk in chunks:
-            embedding = embed_text(chunk)  # Replace with your actual embedding method
+            embedding = get_embedding(chunk)  # Replace with your actual embedding method
             DocumentChunk.objects.create(text=chunk, embedding=embedding)
             print(f"Saved chunk with embedding (first 50 chars): {chunk[:50]}...")
+            time.sleep(60)
 
     def clean_text(self, text):
         """

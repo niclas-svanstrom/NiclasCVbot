@@ -11,6 +11,6 @@ class Document(models.Model):
 # Create your models here.
 class DocumentChunk(models.Model):
     text = models.TextField()
-    embedding = VectorField(dimensions=384)  
+    embedding = VectorField(dimensions=1536)  
     def __str__(self):
         return self.text[:50] 

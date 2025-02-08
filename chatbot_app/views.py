@@ -1,12 +1,11 @@
 from django.http import StreamingHttpResponse
 from django.shortcuts import render
-from sentence_transformers import SentenceTransformer
 from pgvector.django import L2Distance
 from .models import DocumentChunk
 import time
+from .utils import get_embedding
 
 # Load the model once at startup
-model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 def chat_page(request):
     """Render the chat page."""
@@ -14,7 +13,7 @@ def chat_page(request):
 
 def search_documents(query, top_k=5):
     """Search stored embeddings for the closest matches to the query."""
-    query_embedding = model.encode([query]).tolist()
+    query_embedding = get_embedding(query)
     # Order by similarity (using L2 distance)
     results = DocumentChunk.objects.order_by(
         L2Distance('embedding', query_embedding[0])
