@@ -21,18 +21,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-955mto+68v!gqp##a&06@lv)#=3surj6qnrw6)a+nvkiq#-5a2'
+SECRET_KEY = os.getenv('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','niclascvbot.onrender.com']
 
 
 # Application definition
 
 INSTALLED_APPS = [
-    "pgvector.django",
+    'pgvector.django',
     'chatbot_app',
     'django.contrib.admin',
     'django.contrib.auth',

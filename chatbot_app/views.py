@@ -1,56 +1,40 @@
-# import pickle
-# import openai
-# from django.http import JsonResponse
-# from sklearn.metrics.pairwise import cosine_similarity
-# from chatbot_app.models import ResumeData
-
-# openai.api_key = "your_openai_api_key"
-
-# def chat_with_resume(request):
-#     user_input = request.GET.get("query")
-#     with open("resume_data/embeddings/resume_embeddings.pkl", "rb") as f:
-#         vectorizer, embeddings = pickle.load(f)
-    
-#     input_embedding = vectorizer.transform([user_input])
-#     similarities = cosine_similarity(input_embedding, embeddings).flatten()
-#     best_match_idx = similarities.argmax()
-
-#     matched_entry = ResumeData.objects.all()[best_match_idx]
-#     response = openai.Completion.create(
-#         engine="text-davinci-003",
-#         prompt=f"Based on the following resume section:\n\n{matched_entry.content}\n\nAnswer this question:\n{user_input}",
-#         max_tokens=150
-#     )
-    
-#     return JsonResponse({"answer": response["choices"][0]["text"].strip()})
-
 from django.http import StreamingHttpResponse
-
 from django.shortcuts import render
+from sentence_transformers import SentenceTransformer
+from pgvector.django import L2Distance
+from .models import DocumentChunk
+import time
+
+# Load the model once at startup
+model = SentenceTransformer("sentence-transformers/all-MiniLM-L6-v2")
 
 def chat_page(request):
-    """Render the chatbot landing page."""
-    return render(request, "chatbot_app/chatbot.html")
+    """Render the chat page."""
+    return render(request, "chatbot_app/chat.html")
 
+def search_documents(query, top_k=5):
+    """Search stored embeddings for the closest matches to the query."""
+    query_embedding = model.encode([query]).tolist()
+    # Order by similarity (using L2 distance)
+    results = DocumentChunk.objects.order_by(
+        L2Distance('embedding', query_embedding[0])
+    )[:top_k]
+    return results
+
+def stream_response(user_input):
+    """Stream responses using SSE."""
+    closest_chunks = search_documents(user_input)
+    for chunk in closest_chunks:
+        print(chunk.text)
+        # Yield each chunk as an SSE message. A small delay helps simulate streaming.
+        yield f"data: {chunk.text}\n\n"
+    # Send a final event to signal completion.
+    yield "data: [DONE]\n\n"
 
 def chat_with_resume(request):
-    # Capture user input
-    user_input = request.GET.get("query")
-    print(f"User input: {user_input}")  # Logs the input on the server
-
-    # Function to generate the streamed response
-    def stream_response():
-        responses = [
-            "Hello, I am Niclas' CV chatbot.",
-            "How can I help you today?",
-        ]
-        for line in responses:
-            yield f"data: {line}\n\n"  # SSE format: 'data: <content>\n\n'
-            import time
-            time.sleep(1)  # Simulate streaming with delay
-
-    # Create a streaming HTTP response with content type for SSE
+    """SSE endpoint that streams responses for a given query."""
+    user_input = request.GET.get("query", "")
     return StreamingHttpResponse(
-        stream_response(),
+        stream_response(user_input),
         content_type="text/event-stream"
     )
