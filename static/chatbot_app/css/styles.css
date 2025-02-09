@@ -1,54 +1,137 @@
-/* chat_app/static/chat_app/css/styles.css */
+/* Define CSS Variables for light mode */
+:root {
+    --bg-color: #ececec;
+    --text-color: #000000;
+    --navbar-bg: #ececec;           /* Very dark for the navbar */
+    --content-bg: #f7f7f7;    /* Dark gray for conversations */
+    --input-bg: #ececec;
+  }
+  
+  /* Dark mode variables; apply by adding the class "dark-mode" on a parent element (e.g., body) */
+  .dark-mode {
+    --bg-color: #212121;
+    --text-color: #ffffff;
+    --navbar-bg: #171717;
+    --content-bg: #212121;
+    --input-bg: #333333;
+  }
+
+  /* chat_app/static/chat_app/css/styles.css */
 body {
     font-family: Arial, sans-serif;
     background-color: #f4f4f4;
     margin: 0;
     padding: 0;
+    transition: background-color 0.3s, color 0.3s;
+
 }
 
-.chat-container {
-    max-width: 600px;
-    margin: 50px auto;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+* {
+    scrollbar-color: #424242;
+}
+  
+  /* Ensure the entire window is used */
+  .main-container {
+    width: 100vw;
+    height: 100vh;
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    position: relative;
+    display: flex;
+  }
+  
+  /* Navbar fixed to the right */
+  .navbar {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh;
+    background-color: var(--navbar-bg);
+    color: var(--text-color);
     padding: 20px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-#messages {
-    border: 1px solid #ccc;
+    box-sizing: border-box;
+  }
+  
+  /* Title styling inside the navbar */
+  .title-container h3 {
+    margin: 0;
+    font-size: 24px;
+  }
+  
+  /* Conversations area styling inside the navbar */
+  .conversations {
+    margin-top: 20px;
     padding: 10px;
-    height: 300px;
+    border-radius: 8px;
+    height: 100%;
+    overflow-y: auto;
+  }
+  
+  /* Main content takes up remaining space (avoiding the navbar) */
+  .main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    box-sizing: border-box;
+    background-color: var(--content-bg);
+  }
+  
+  /* Chat container styling (conversation area above the input) */
+  .chat-container {
+    flex: 1;
     overflow-y: auto;
     margin-bottom: 10px;
-    background: #fafafa;
-}
-
-.input-container {
+    border-radius: 8px;
+  }
+  
+  /* Input container at the bottom of the main content */
+  .input-container {
     display: flex;
-}
-
-#userInput {
+    align-items: center;
+    padding: 10px;
+    background-color: var(--input-bg);
+    border-radius: 20px;
+    width: 50%;
+    align-self: center;
+    flex-direction: column;
+    margin-bottom: 20px;
+  }
+  
+  /* Style for the text input field */
+  .input-container input {
     flex: 1;
     padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    font-size: 16px;
-}
-
-#sendButton {
-    padding: 10px 20px;
-    margin-left: 10px;
+    color: var(--text-color);
+    width: 100%;
     border: none;
-    background: #28a745;
-    color: #fff;
-    font-size: 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background 0.3s ease;
-}
+    background-color: transparent;
+  }
 
-#sendButton:hover {
-    background: #218838;
-}
+  .input-container input:focus-visible {
+    border: none;
+    outline: none;
+  }
+  
+  /* Style for the send button */
+  .input-container button {
+    padding: 10px 13px;
+    border: none;
+    border-radius: 20px;
+    background-color: var(--navbar-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    align-self: flex-end;
+    font-size: medium;
+  }
+  
+  .disclaimer-message {
+    text-align: center;
+    padding: 5px;
+    font-size: 0.7em;
+    color: var(--text-color);
+  }
+
+  .disclaimer-message p {
+    margin: 0;
+  }

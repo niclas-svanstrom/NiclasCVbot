@@ -6,16 +6,46 @@
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'chatbot_app/pictures/n-letter.svg' %}">
     <title>Chat with Niclas' CV</title>
     <link rel="stylesheet" type="text/css" href="{% static 'chatbot_app/css/styles.css' %}">
+    <script src="https://kit.fontawesome.com/cfe26071ed.js" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="chat-container">
+    <div class="main-container">
+        <div class="navbar">
+            <div class="title-container">
+                <h3 class="title">Niclas CV bot</h3>
+            </div>
+            <div class="conversations">
+
+            </div>
+            <button id="toggleMode">Toggle Dark/Light Mode</button>
+
+        </div>
+        <div class="main-content">
+            <div class="chat-container">
+                <div id="messages"></div>
+            </div>
+            <div class="input-container">
+                <input id="userInput" type="text" placeholder="Type your question...">
+                <button id="sendButton"><i class="fa-solid fa-arrow-up"></i></button>
+            </div>
+            <div class="disclaimer-message">
+                <p>
+                  <em>
+                    This chatbot is powered by caffeine and may occasionally have a brain fart. For the truly important stuff, please check with Niclas!
+                  </em>
+                </p>
+              </div>
+        </div>
+
+    </div>
+    <!-- <div class="chat-container">
         <h1>Chat with Niclas' CV</h1>
         <div id="messages"></div>
         <div class="input-container">
             <input id="userInput" type="text" placeholder="Type your question...">
             <button id="sendButton">Send</button>
         </div>
-    </div>
+    </div> -->
     <script src="{% static 'chatbot_app/js/chat.js' %}"></script>
 </body>
 </html>

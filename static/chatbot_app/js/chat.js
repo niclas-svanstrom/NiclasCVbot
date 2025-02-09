@@ -1,9 +1,19 @@
 // chat_app/static/chat_app/js/chat.js
+function sendMessage() {
+    const userInput = document.getElementById("userInput");
+}
+
+
 document.addEventListener("DOMContentLoaded", function() {
     const messagesDiv = document.getElementById("messages");
     const sendButton = document.getElementById("sendButton");
     const userInput = document.getElementById("userInput");
     let eventSource = null;
+
+    const toggleBtn = document.getElementById('toggleMode');
+    toggleBtn.addEventListener('click', () => {
+      document.body.classList.toggle('dark-mode');
+    });
 
     sendButton.addEventListener("click", function() {
         const query = userInput.value.trim();

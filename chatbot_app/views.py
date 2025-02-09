@@ -22,11 +22,13 @@ def search_documents(query, top_k=5):
 
 def stream_response(user_input):
     """Stream responses using SSE."""
-    closest_chunks = search_documents(user_input)
-    for chunk in closest_chunks:
-        # Yield each chunk as an SSE message. A small delay helps simulate streaming.
-        yield f"data: {chunk.text}\n\n"
-    # Send a final event to signal completion.
+    # closest_chunks = search_documents(user_input)
+    streaming_chunks = ['Hello', ' I', ' am', ' Niclas', ' CV', ' AI', ' Chatbot', ' how', ' can', ' I', ' help', 'you?']
+    for chunk in streaming_chunks:
+        yield f"data: {chunk}\n\n"
+        time.sleep(0.3)
+    # for chunk in closest_chunks:
+    #     yield f"data: {chunk.text}\n\n"
     yield "data: [DONE]\n\n"
 
 def chat_with_resume(request):
