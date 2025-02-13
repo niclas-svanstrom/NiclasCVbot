@@ -1,40 +1,89 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="UTF-8">
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'chatbot_app/pictures/n-letter.svg' %}">
     <title>Chat with Niclas' CV</title>
     <link rel="stylesheet" type="text/css" href="{% static 'chatbot_app/css/styles.css' %}">
     <script src="https://kit.fontawesome.com/cfe26071ed.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/markdown-it@14.1.0/dist/markdown-it.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css"
+        integrity="sha384-nB0miv6/jRmo5UMMR1wu3Gz6NLsoTkbqJghGIsx//Rlm+ZU03BU6SQNC66uf4l5+" crossorigin="anonymous">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"
+        integrity="sha384-7zkQWkzuo3B5mTepMUcHkMB5jZaolc2xDwL6VFqjFALcbeS9Ggm/Yr2r3Dy4lfFg"
+        crossorigin="anonymous"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"
+        integrity="sha384-43gviWU0YVjaDtb/GhzOouOXtZMP/7XUzwPTstBeZFe/+rCMvRwr4yROQP43s0Xk"
+        crossorigin="anonymous"></script>
 </head>
+
 <body>
     <div class="main-container">
-        <div class="navbar">
+        <div class="navbar" id="navbar" style="display: flex;">
             <div class="title-container">
                 <h3 class="title">Niclas CV bot</h3>
             </div>
-            <div class="conversations">
-
+            <div class="new-conversation-button-container">
+                <button id="new-conversation-button" onclick="startNewConversation()">
+                    <p>+ New Chat</p>
+                </button>
             </div>
-            <button id="toggleMode">Toggle Dark/Light Mode</button>
-
+            <div class="all-conversations">
+                <div id="favorite-conversations"></div>
+                <div id="conversations"></div>
+            </div>
+            <div class="theme-box">
+                <i class="fa-regular fa-sun fa-lg" id="icon-sun"></i>
+                <label class="theme-switch">
+                    <input type="checkbox" id="theme-toggle" class="toggle-input" />
+                    <span class="theme-slider round"></span>
+                </label>
+                <i class="fa-regular fa-moon fa-lg" id="icon-moon"></i>
+            </div>
+            <div class="menu" id="menu">
+                <div class="menu-item" onclick="downloadConversation()"><i class="fas fa-file-arrow-down"></i>
+                    <p>Download History</p>
+                </div>
+                <div class="menu-item" onclick="renameConversation()"><i class="fas fa-pen"></i>
+                    <p>Rename</p>
+                </div>
+                <div class="menu-item" onclick="setFavorite()"><i class="far fa-star"></i>
+                    <p>Set Favorite</p>
+                </div>
+                <div class="menu-item" onclick="deleteConversation()"><i class="fas fa-trash"
+                        style="color: #b51a1a;"></i>
+                    <p>Delete</p>
+                </div>
+            </div>
         </div>
         <div class="main-content">
+            <div class="toggle-navbar-container">
+                <button id="toggle-navbar-button" onclick="toggleNavbarContainer()">
+                    <i class="fas fa-angles-right navbar-rotate"
+                        style="--fa-primary-color: var(--text-light); --fa-secondary-color: var(--text-light);"
+                        id="toggle-navbar-icon"></i>
+                </button>
+            </div>
             <div class="chat-container">
                 <div id="messages"></div>
             </div>
             <div class="input-container">
-                <input id="userInput" type="text" placeholder="Type your question...">
-                <button id="sendButton"><i class="fa-solid fa-arrow-up"></i></button>
+                <textarea spellcheck="false" type="text" id="userInput" placeholder="Type your question..."
+                    onkeypress="userInputKeypress(event)" oninput="userInputOnInput()"></textarea>
+                <button id="sendButton" disabled><i class="fa-solid fa-arrow-up"></i></button>
             </div>
             <div class="disclaimer-message">
                 <p>
-                  <em>
-                    This chatbot is powered by caffeine and may occasionally have a brain fart. For the truly important stuff, please check with Niclas!
-                  </em>
+                    <em>
+                        This chatbot is powered by caffeine and may occasionally have a brain fart. For the truly
+                        important stuff, please check with Niclas!
+                    </em>
                 </p>
-              </div>
+            </div>
         </div>
 
     </div>
@@ -47,5 +96,7 @@
         </div>
     </div> -->
     <script src="{% static 'chatbot_app/js/chat.js' %}"></script>
+    <script>initializePage();</script>
 </body>
+
 </html>
