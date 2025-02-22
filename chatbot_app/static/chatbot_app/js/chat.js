@@ -90,7 +90,7 @@ function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-function createCopyButtons(buttonContainer, currentMessageContainer) {
+function createCopyButtons(buttonContainer, activeMessageContainer) {
     // Create button container with template literals
     buttonContainer.innerHTML = `
         <button class="copy-button" right-data-tooltip="Copy message text">
@@ -113,7 +113,7 @@ function createCopyButtons(buttonContainer, currentMessageContainer) {
 
     // Copy plain text
     copyButton.addEventListener('click', () => {
-        const text = Array.from(currentMessageContainer.querySelectorAll('.assistant-message'))
+        const text = Array.from(activeMessageContainer.querySelectorAll('.assistant-message'))
             .map(div => div.innerText)
             .join('\n');
 
@@ -130,7 +130,7 @@ function createCopyButtons(buttonContainer, currentMessageContainer) {
 
     // Copy rich text
     copyRichButton.addEventListener('click', () => {
-        const text = Array.from(currentMessageContainer.querySelectorAll('.assistant-message'))
+        const text = Array.from(activeMessageContainer.querySelectorAll('.assistant-message'))
             .map(div => div.innerHTML)
             .join('');
 
@@ -349,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     const userInput = document.getElementById('userInput');
-    const submitButton = document.getElementById('sendButton')
 
     userInput.addEventListener('keypress', (event) => {
         if (event.key === 'Enter' && !event.shiftKey) {
@@ -551,26 +550,26 @@ function showWelcomeMessage() {
     <div class="welcome-message">
         <div class="welcome-message-container">
             <h3 style="text-align: center;">Welcome to Niclas CV chatbot</h3> <br>
-            <p>Hello there</p>
+            <p>Welcome! I'm your personal Resume ChatBot, built with state-of-the-art retrieval-augmented generation (RAG) technology. I can help you explore my professional journey—from my CV and key achievements to insights about past projects and work experiences. Ask me anything about my background, skills, or milestones, and I'll provide the detailed information you need. Let's get started!</p>
         </div>
     </div>
     `;
 }
 
-function setCurrentConversationLocalKey(key) {
+function setActiveConversationLocalKey(key) {
     selectedConversationKey = key;
-    localStorage.setItem('current_conversation', key);
+    localStorage.setItem('active_conversation', key);
 }
 
-function getCurrentConversationKey() {
-    return localStorage.getItem('current_conversation');
+function getActiveConversationKey() {
+    return localStorage.getItem('active_conversation');
 }
 
 function startNewConversation() {
     const key = `conversation_${Date.now()}`;
     const newConversation = { title: 'New Conversation', created_at: new Date().toISOString(), messages: [] };
     saveConversation(key, newConversation);
-    setCurrentConversationLocalKey(key);
+    setActiveConversationLocalKey(key);
     openConversation(key);
 }
 
@@ -579,7 +578,7 @@ function openConversation(key) {
     console.log(conversation)
     if (conversation) {
         document.getElementById('userInput').dataset.conversationKey = key;
-        setCurrentConversationLocalKey(key);
+        setActiveConversationLocalKey(key);
         showMessages(conversation.messages);
         showConversations();
     } else {
@@ -696,10 +695,10 @@ async function sendMessage() {
 
 
 function initializePage() {
-    const currentConversationKey = getCurrentConversationKey();
-    console.log(currentConversationKey)
-    if (currentConversationKey && getConversation(currentConversationKey)) {
-        openConversation(currentConversationKey);
+    const activeConversationKey = getActiveConversationKey();
+    console.log(activeConversationKey)
+    if (activeConversationKey && getConversation(activeConversationKey)) {
+        openConversation(activeConversationKey);
     } else {
         startNewConversation();
     }
