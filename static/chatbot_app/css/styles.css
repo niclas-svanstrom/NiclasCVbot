@@ -714,6 +714,7 @@ pre {
   background: #fff;
   margin: 5% auto;
   width: 80%;
+  height: 80vh;
   /* max-width: 800px; */
   border-radius: 8px;
   z-index: 1001;
@@ -747,7 +748,7 @@ pre {
 /* Modal body layout */
 .modal-body {
   display: flex;
-  height: 80vh;
+  height: 100%;
   background-color: var(--content-light);
   /* Adjust as needed */
 }
