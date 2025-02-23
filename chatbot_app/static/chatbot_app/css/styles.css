@@ -529,6 +529,7 @@ pre {
   display: flex;
   min-height: 63px;
   position: relative;
+  flex-wrap: wrap;
 }
 
 .assistant-response {
@@ -803,6 +804,41 @@ pre {
 
 #openModalButton p {
   margin: 0;
+}
+
+.toggle-button {
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: var(--hover-light);
+  color: var(--text-light);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* The sources list, hidden by default, also wraps to a new line */
+.sources-list {
+  flex-basis: 100%;
+  display: none;
+  /* toggled via JavaScript */
+  margin-top: 0.5rem;
+  padding: 0.5rem;
+}
+
+/* Optional styling for the list */
+.sources-list ul {
+  margin: 0;
+  padding-left: 1rem;
+  list-style-type: none;
+  padding: 0;
+}
+
+.sources-list li {
+  margin-bottom: 0.25rem;
+}
+
+.sources-list li a {
+  color: var(--text-light);
 }
 
 @keyframes spin {

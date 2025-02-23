@@ -559,25 +559,75 @@ function showMessages(messages) {
             msg.role === 'assistant' ? `${msg.role}-response-container` : `${msg.role}-message-container`
         );
 
-        messageContainerDiv.innerHTML = `
-            <div class="${msg.role === 'assistant' ? `${msg.role}-response` : `${msg.role}-message`}">
-                ${md.render(msg.text)}
+        // Prepare extra content for assistant messages
+        let extraContent = '';
+        if (msg.role === 'assistant') {
+            // If the assistant message has sources, add a toggle button and a sources list container
+            if (msg.sources && msg.sources.length > 0) {
+                extraContent = `
+            <button class="toggle-button">Show Sources</button>
+            <div class="sources-list">
+              <ul>
+                ${msg.sources.map(source => `<li><a href="${source.url}">${source.document_name}</a></li>`).join('')}
+              </ul>
             </div>
-            ${msg.role === 'assistant' ? `
-                <div class="message-side-container">
-                    <div class="message-side-button-container"></div>
-                </div>
-            ` : ''}
-        `;
+            <div class="message-side-container">
+              <div class="message-side-button-container"></div>
+            </div>
+          `;
+            } else {
+                extraContent = `
+            <div class="message-side-container">
+              <div class="message-side-button-container"></div>
+            </div>
+          `;
+            }
+        }
+
+        messageContainerDiv.innerHTML = `
+        <div class="${msg.role === 'assistant' ? `${msg.role}-response` : `${msg.role}-message`}">
+          ${md.render(msg.text)}
+        </div>
+        ${msg.role === 'assistant' ? extraContent : ''}
+      `;
 
         messagesDiv.appendChild(messageContainerDiv);
 
         if (msg.role === 'assistant') {
             const buttonContainer = messageContainerDiv.querySelector('.message-side-button-container');
             createCopyButtons(buttonContainer, messageContainerDiv);
+
+            // If sources exist, set up toggle functionality and add click listeners to source links
+            if (msg.sources && msg.sources.length > 0) {
+                const toggleButton = messageContainerDiv.querySelector('.toggle-button');
+                const sourcesList = messageContainerDiv.querySelector('.sources-list');
+                // Hide the sources list by default
+                sourcesList.style.display = 'none';
+                toggleButton.addEventListener('click', () => {
+                    if (sourcesList.style.display === 'none' || sourcesList.style.display === '') {
+                        sourcesList.style.display = 'block';
+                        toggleButton.textContent = 'Hide Sources';
+                    } else {
+                        sourcesList.style.display = 'none';
+                        toggleButton.textContent = 'Show Sources';
+                    }
+                });
+
+                // Add click listeners to each source link
+                const sourceLinks = messageContainerDiv.querySelectorAll('.sources-list a');
+                sourceLinks.forEach(link => {
+                    link.addEventListener('click', function (e) {
+                        e.preventDefault();
+                        const url = this.getAttribute('href');
+                        openDocumentInModal(url);
+                    });
+                });
+            }
         }
     });
 }
+
+
 
 
 function showWelcomeMessage() {
@@ -644,7 +694,7 @@ async function sendMessage() {
 
         const messagesDiv = document.getElementById('messages');
 
-        // Create temp message container using template literals
+        // Create temporary assistant message container
         const tempMessageContainerDiv = document.createElement('div');
         tempMessageContainerDiv.classList.add('assistant-response-container');
         tempMessageContainerDiv.innerHTML = `
@@ -659,17 +709,17 @@ async function sendMessage() {
         const buttonContainer = tempMessageContainerDiv.querySelector('.message-side-button-container');
 
         let fastForward = false; // Flag to handle fast-forwarding
+        let collectedSources = []; // This will hold sources if they are sent
 
-        // Add a button for fast-forwarding
+        // Add a fast-forward button
         buttonContainer.innerHTML = `
             <button class="forward-arrow">
                 <i class="fa-solid fa-forward"></i>
             </button>
         `;
-
         const fastForwardButton = buttonContainer.querySelector('.forward-arrow');
         fastForwardButton.addEventListener('click', () => {
-            fastForward = true; // Enable fast-forward mode
+            fastForward = true;
         });
 
         try {
@@ -700,11 +750,57 @@ async function sendMessage() {
                     if (trimmedLine) {
                         try {
                             const data = JSON.parse(trimmedLine);
-                            collectedMessage += data.message;
-                            tempMessageDiv.innerHTML = md.render(collectedMessage);
-                            renderMathInElement(tempMessageDiv);
-                            if (!fastForward) {
-                                await sleep(20);
+                            if (data.role === 'assistant') {
+                                collectedMessage += data.message;
+                                tempMessageDiv.innerHTML = md.render(collectedMessage);
+                                renderMathInElement(tempMessageDiv);
+                                if (!fastForward) {
+                                    await sleep(20);
+                                }
+                            } else if (data.role === 'assistant_sources') {
+                                // Save sources for later storage
+                                collectedSources = data.sources || [];
+
+                                // Build the toggleable sources UI
+                                const sourcesListDiv = document.createElement('div');
+                                sourcesListDiv.classList.add('sources-list');
+                                sourcesListDiv.style.display = 'none';
+
+                                let listHtml = '<ul>';
+                                collectedSources.forEach(source => {
+                                    // Remove target attribute since we handle click
+                                    listHtml += `<li><a href="${source.url}">${source.document_name}</a></li>`;
+                                });
+                                listHtml += '</ul>';
+                                sourcesListDiv.innerHTML = listHtml;
+
+                                // Create a toggle button for the sources list
+                                const toggleButton = document.createElement('button');
+                                toggleButton.textContent = 'Show Sources';
+                                toggleButton.classList.add('toggle-button');
+                                toggleButton.addEventListener('click', () => {
+                                    if (sourcesListDiv.style.display === 'none' || sourcesListDiv.style.display === '') {
+                                        sourcesListDiv.style.display = 'block';
+                                        toggleButton.textContent = 'Hide Sources';
+                                    } else {
+                                        sourcesListDiv.style.display = 'none';
+                                        toggleButton.textContent = 'Show Sources';
+                                    }
+                                });
+
+                                // Append the toggle button and sources list below the assistant response
+                                tempMessageContainerDiv.appendChild(toggleButton);
+                                tempMessageContainerDiv.appendChild(sourcesListDiv);
+
+                                // Add click event to each source link to open the document in the modal
+                                const sourceLinks = sourcesListDiv.querySelectorAll('a');
+                                sourceLinks.forEach(link => {
+                                    link.addEventListener('click', function (e) {
+                                        e.preventDefault();
+                                        const url = this.getAttribute('href');
+                                        openDocumentInModal(url);
+                                    });
+                                });
                             }
                         } catch (e) {
                             console.error('Error parsing line:', trimmedLine, e);
@@ -715,9 +811,14 @@ async function sendMessage() {
 
             fastForwardButton.remove();
 
-            const assistantMessage = { role: 'assistant', text: collectedMessage, created_at: createdAt };
+            // Save the final assistant message with collected sources (or empty array if none)
+            const assistantMessage = {
+                role: 'assistant',
+                text: collectedMessage,
+                created_at: createdAt,
+                sources: collectedSources
+            };
             conversation.messages.push(assistantMessage);
-
             saveConversation(key, conversation);
 
             createCopyButtons(buttonContainer, tempMessageContainerDiv);
@@ -727,7 +828,6 @@ async function sendMessage() {
         }
     }
 }
-
 
 
 function initializePage() {
@@ -794,4 +894,26 @@ function userInputKeypress(event) {
             toggleSubmitButton();
         }
     }
+}
+
+function openDocumentInModal(url) {
+    // Get the modal, PDF viewer, and all document buttons
+    const modal = document.getElementById('myModal');
+    const pdfViewer = document.getElementById('pdfViewer');
+    const docButtons = document.querySelectorAll('.doc-btn');
+
+    // Open the modal
+    modal.style.display = 'block';
+
+    // Update the PDF viewer source
+    pdfViewer.src = url;
+
+    // Loop through the document buttons to update the active state
+    docButtons.forEach(btn => {
+        if (btn.getAttribute('data-url') === url) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    });
 }

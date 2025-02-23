@@ -5,7 +5,7 @@ from .models import DocumentChunk
 import time
 import json
 from .utils import get_embedding
-from .models import Document
+from .models import Document, DocumentChunk
 
 # Load the model once at startup
 
@@ -19,7 +19,9 @@ def chat_page(request):
 
 def search_documents(query, top_k=5):
     """Search stored embeddings for the closest matches to the query."""
-    query_embedding = get_embedding(query)
+    # query_embedding = get_embedding(query)
+    chunk = DocumentChunk.objects.get(id=31)
+    query_embedding = chunk.embedding
     # Order by similarity (using L2 distance)
     results = DocumentChunk.objects.order_by(
         L2Distance('embedding', query_embedding)
@@ -28,7 +30,7 @@ def search_documents(query, top_k=5):
 
 def stream_response(user_input, conversation):
     """Stream responses using SSE."""
-    # closest_chunks = search_documents(user_input)
+    closest_chunks = search_documents(user_input)
     streaming_chunks = ['Hello', ' I', ' am', ' Niclas', ' CV', ' AI', ' Chatbot', ' how', ' can', ' I', ' help', ' you?']
     for chunk in streaming_chunks:
         yield json.dumps({
@@ -36,6 +38,20 @@ def stream_response(user_input, conversation):
             'message': chunk
         }) + "\n"
         time.sleep(0.3)
+
+    sources = {}
+    for chunk in closest_chunks:
+        doc = chunk.document
+        # Use the document_name and file URL; duplicates will be merged.
+        sources[doc.document_name] = doc.file.url
+
+    sources_list = [{'document_name': name, 'url': url} for name, url in sources.items()]
+
+    # Yield a final message with the sources list
+    yield json.dumps({
+        'role': 'assistant_sources',
+        'sources': sources_list
+    }) + "\n"
     # for chunk in closest_chunks:
     #     yield f"data: {chunk.text}\n\n"
 
