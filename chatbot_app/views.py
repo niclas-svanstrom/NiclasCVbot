@@ -5,12 +5,17 @@ from .models import DocumentChunk
 import time
 import json
 from .utils import get_embedding
+from .models import Document
 
 # Load the model once at startup
 
 def chat_page(request):
     """Render the chat page."""
-    return render(request, "chatbot_app/chat.html")
+    documents = Document.objects.all()
+    context = {
+        'documents': documents,
+    }
+    return render(request, "chatbot_app/chat.html", context)
 
 def search_documents(query, top_k=5):
     """Search stored embeddings for the closest matches to the query."""

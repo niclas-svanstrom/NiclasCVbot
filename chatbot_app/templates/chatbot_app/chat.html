@@ -21,7 +21,9 @@
         crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Patrick+Hand&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Patrick+Hand&display=swap"
+        rel="stylesheet">
 </head>
 
 <body>
@@ -38,6 +40,11 @@
             <div class="all-conversations">
                 <div id="favorite-conversations"></div>
                 <div id="conversations"></div>
+            </div>
+            <div class="my-documents-container">
+                <button id="openModalButton">
+                    <p>My Documents</p>
+                </button>
             </div>
             <div class="theme-box">
                 <i class="fa-regular fa-sun fa-lg" id="icon-sun"></i>
@@ -66,8 +73,7 @@
         <div class="main-content">
             <div class="toggle-navbar-container">
                 <button id="toggle-navbar-button" onclick="toggleNavbarContainer()">
-                    <i class="fas fa-angles-right navbar-rotate"
-                        id="toggle-navbar-icon"></i>
+                    <i class="fas fa-angles-right navbar-rotate" id="toggle-navbar-icon"></i>
                 </button>
             </div>
             <div class="chat-container">
@@ -89,6 +95,30 @@
         </div>
 
     </div>
+    <div id="myModal" class="modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-container">
+            <div class="modal-header">
+                <h2>Documents</h2>
+                <button id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <!-- Sidebar with document buttons -->
+                <div class="modal-sidebar">
+                    {% for document in documents %}
+                    <button class="doc-btn {% if forloop.first %}active{% endif %}" data-url="{{ document.file.url }}">
+                        {{ document.document_name }}
+                    </button>
+                    {% endfor %}
+                </div>
+                <!-- Main content area for displaying the PDF -->
+                <div class="modal-content">
+                    <iframe id="pdfViewer" src="{{ documents.0.file.url }}"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- <div class="chat-container">
         <h1>Chat with Niclas' CV</h1>
         <div id="messages"></div>

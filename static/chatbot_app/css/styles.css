@@ -14,7 +14,7 @@ html {
 
   --bg-dark: #212121;
   --text-dark: #ffffff;
-  --reversetext-dark: #000000;
+  --reversetext-dark: #ffffff;
   --navbar-dark: #171717;
   --content-dark: #212121;
   --input-dark: #262626;
@@ -74,8 +74,8 @@ body {
   overflow-y: auto;
 }
 
-.navbar button {
-  padding: 10px;
+#new-conversation-button {
+  padding: 15px;
 }
 
 .title-container h3 {
@@ -421,10 +421,10 @@ pre {
   position: relative;
   height: 100%;
   padding: 5px;
-  z-index: 1200;
 }
 
-.conversation-item {
+.conversation-item,
+.doc-btn {
   cursor: pointer;
   /* padding: 0.5em; */
   display: flex;
@@ -436,11 +436,14 @@ pre {
   margin: 0;
 }
 
-.conversation-item:hover {
+.conversation-item:hover,
+.doc-btn:hover,
+#openModalButton:hover {
   background-color: var(--hover-light);
 }
 
-.active-conversation {
+.active-conversation,
+.doc-btn.active {
   background-color: var(--hover-light);
 }
 
@@ -681,6 +684,124 @@ pre {
   z-index: 9000;
   top: 50%;
   left: 50%;
+}
+
+/* Modal base styling */
+.modal {
+  display: none;
+  /* Hidden by default */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1000;
+}
+
+/* The overlay darkens the background */
+.modal-overlay {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  top: 0;
+  left: 0;
+}
+
+/* Modal container for centering content */
+.modal-container {
+  position: relative;
+  background: #fff;
+  margin: 5% auto;
+  width: 80%;
+  /* max-width: 800px; */
+  border-radius: 8px;
+  z-index: 1001;
+  overflow: hidden;
+}
+
+/* Header styling */
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px;
+  background: var(--navbar-light);
+  border-bottom: 1px solid #ccc;
+  color: var(--text-light);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.5em;
+}
+
+#modalClose {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: var(--reversetext-light);
+}
+
+/* Modal body layout */
+.modal-body {
+  display: flex;
+  height: 80vh;
+  background-color: var(--content-light);
+  /* Adjust as needed */
+}
+
+/* Sidebar styling */
+.modal-sidebar {
+  width: 25%;
+  border-right: 1px solid #ccc;
+  padding: 10px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+/* Document button styles */
+.doc-btn {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 5px;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  color: var(--text-light);
+  background-color: transparent;
+}
+
+/* Main content area styling */
+.modal-content {
+  width: 75%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+/* PDF viewer styling */
+.modal-content iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+#openModalButton {
+  padding: 15px;
+  background: none;
+  border: none;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  border-radius: 10px;
+}
+
+#openModalButton p {
+  margin: 0;
 }
 
 @keyframes spin {

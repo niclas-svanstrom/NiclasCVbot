@@ -359,6 +359,42 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     });
+    var modal = document.getElementById('myModal');
+    var openModalButton = document.getElementById('openModalButton');
+    var modalClose = document.getElementById('modalClose');
+    var docButtons = document.querySelectorAll('.doc-btn');
+    var pdfViewer = document.getElementById('pdfViewer');
+
+    // Open the modal when the button is clicked
+    openModalButton.addEventListener('click', function () {
+        modal.style.display = 'block';
+    });
+
+    // Close the modal when the close button is clicked
+    modalClose.addEventListener('click', function () {
+        modal.style.display = 'none';
+    });
+
+    // Close the modal if clicking outside the modal container
+    modal.addEventListener('click', function (e) {
+        if (e.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+
+    // Switch documents on button click
+    docButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            // Remove active from all buttons
+            docButtons.forEach(function (b) {
+                b.classList.remove('active');
+            });
+            // Set active on the clicked button
+            this.classList.add('active');
+            // Update the iframe to show the selected PDF
+            pdfViewer.src = this.getAttribute('data-url');
+        });
+    });
 });
 
 function toggleSubmitButton() {
