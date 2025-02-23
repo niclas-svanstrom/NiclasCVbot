@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from chatbot_app.views import chat_page
 
-from settings import DEBUG
+from .settings import DEBUG
 from django.conf import settings
 from django.conf.urls.static import static, serve
 
