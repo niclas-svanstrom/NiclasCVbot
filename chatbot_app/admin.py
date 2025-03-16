@@ -53,7 +53,7 @@ class DocumentAdmin(admin.ModelAdmin):
         print(f"Cleaned text length: {len(cleaned_text)} characters")
 
         # Split text into chunks of 200 characters with a 50-character overlap
-        chunks = self.split_text_into_chunks(cleaned_text, chunk_size=400, overlap=100)
+        chunks = self.split_text_into_chunks(cleaned_text, chunk_size=800, overlap=200)
         if not chunks:
             print("No chunks generated.")
         else:
@@ -79,7 +79,7 @@ class DocumentAdmin(admin.ModelAdmin):
                 full_text += page_text
         return full_text
 
-    def split_text_into_chunks(self, text, chunk_size=400, overlap=100):
+    def split_text_into_chunks(self, text, chunk_size=800, overlap=200):
         """Split text into chunks of given size with specified overlap."""
         step = chunk_size - overlap
         return [text[i:i + chunk_size] for i in range(0, len(text), step)]

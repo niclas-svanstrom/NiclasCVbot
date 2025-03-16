@@ -255,7 +255,7 @@ function deleteConversation() {
 
     if (allKeys.length > 0) {
         // Open the next available conversation
-        selectedConversationKey = allKeys[0];
+        selectedConversationKey = allKeys[allKeys.length - 1];
         openConversation(selectedConversationKey);
     } else {
         // Create a new conversation if none exist
@@ -372,6 +372,7 @@ document.addEventListener('DOMContentLoaded', function () {
     var modal = document.getElementById('myModal');
     var openModalButton = document.getElementById('openModalButton');
     var modalClose = document.getElementById('modalClose');
+    var modalContent = document.querySelector('.modal-container'); // Ensure this targets the inner modal
     var docButtons = document.querySelectorAll('.doc-btn');
     var pdfViewer = document.getElementById('pdfViewer');
 
@@ -386,8 +387,14 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // Close the modal if clicking outside the modal container
+    // modal.addEventListener('click', function (e) {
+    //     if (e.target === modal) {
+    //         modal.style.display = 'none';
+    //     }
+    // });
+
     modal.addEventListener('click', function (e) {
-        if (e.target === modal) {
+        if (!modalContent.contains(e.target)) {
             modal.style.display = 'none';
         }
     });
@@ -986,8 +993,8 @@ function showConversationStarters() {
                 <button class="starter-btn" onclick="selectConversationStarter('What are your key achievements?')">
                     What are your key achievements?
                 </button>
-                <button class="starter-btn" onclick="selectConversationStarter('Can you describe one of your projects?')">
-                    Can you describe one of your projects?
+                <button class="starter-btn" onclick="selectConversationStarter('Tell me about one of the applications you built?')">
+                    Tell me about one of the applications you've built?
                 </button>
             </div>
         `;
@@ -1000,6 +1007,7 @@ function showConversationStarters() {
 function selectConversationStarter(text) {
     const messageInput = document.getElementById('userInput');
     messageInput.value = text;
+    messageInput.focus();
 }
 
 
