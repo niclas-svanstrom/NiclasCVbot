@@ -1,6 +1,5 @@
 let selectedConversationKey = null;
 
-
 const md = markdownit({
     highlight: function (str, lang) {
         if (lang && hljs.getLanguage(lang)) {
@@ -198,7 +197,6 @@ function renameConversation() {
     hideConversationMenu();
     const conversation = getConversation(selectedConversationKey);
     const conversationItem = document.querySelector(`[data-conversation-id="${selectedConversationKey}"]`);
-    console.log(conversationItem);
 
     const conversationButton = conversationItem.querySelector('.conversation-title');
     const originalText = conversationButton.querySelector('p').textContent.trim();
@@ -344,9 +342,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     window.addEventListener('resize', function () {
-        // This function will be called whenever the window is resized
-        console.log('Window size changed');
-
         // Add your logic here to handle the changes
         const navbarElement = document.getElementById('navbar');
         const navbarToggleContainer = document.querySelector('.toggle-navbar-container');
@@ -507,9 +502,6 @@ function showConversations() {
     };
     const favoriteConversations = [];
 
-    console.log(conversationKeys)
-    console.log(selectedConversationKey)
-
     conversationKeys.forEach(key => {
         const conversation = getConversation(key);
         if (conversation && selectedConversationKey != key && conversation.messages.length === 0) {
@@ -524,7 +516,6 @@ function showConversations() {
             }
         }
     });
-    console.log(groupedConversations)
 
     Object.keys(groupedConversations).forEach(label => {
         groupedConversations[label].sort((a, b) => new Date(b.conversation.created_at) - new Date(a.conversation.created_at));
@@ -635,7 +626,6 @@ function showMessages(messages) {
                 `;
             }
         }
-        console.log(msg.text)
         // For assistant messages, use md.render, for user messages, escape HTML before inserting.
         messageContainerDiv.innerHTML = `
         <div class="${msg.role === 'assistant' ? 'assistant-response' : 'user-message'}">
@@ -719,7 +709,6 @@ function startNewConversation() {
 
 function openConversation(key) {
     const conversation = getConversation(key);
-    console.log(conversation)
     if (conversation) {
         document.getElementById('userInput').dataset.conversationKey = key;
         setActiveConversationLocalKey(key);
@@ -899,7 +888,6 @@ async function sendMessage() {
 
 function initializePage() {
     const activeConversationKey = getActiveConversationKey();
-    console.log(activeConversationKey)
     if (activeConversationKey && getConversation(activeConversationKey)) {
         openConversation(activeConversationKey);
     } else {

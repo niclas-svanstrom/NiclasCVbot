@@ -109,7 +109,6 @@ def stream_response(user_input, conversation):
         messages=messages,
         tools=tools,
     )
-    print(completion.choices[0].message)
     if not completion.choices[0].message.tool_calls:
         yield json.dumps({
             "role": "assistant",
