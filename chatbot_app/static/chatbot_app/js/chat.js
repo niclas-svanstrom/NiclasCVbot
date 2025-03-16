@@ -158,8 +158,23 @@ function showConversationMenu(event, key) {
     const menu = document.getElementById('menu');
     menu.style.display = 'flex';
     menu.style.top = event.clientY + 'px';
-    menu.style.left = event.clientX + 'px';
+
+    const navbar = document.querySelector('.navbar');
+    // Get the computed position style of the navbar
+    const navbarPosition = window.getComputedStyle(navbar).position;
+    let left;
+
+    if (navbarPosition === 'absolute') {
+        // If the navbar is absolute (e.g. for smaller screens), use the event coordinate as-is.
+        left = event.clientX;
+    } else {
+        // Otherwise, subtract the navbar's width from the x-coordinate.
+        left = event.clientX - navbar.offsetWidth;
+    }
+
+    menu.style.left = left + 'px';
 }
+
 
 function hideConversationMenu() {
     const menu = document.getElementById('menu');
@@ -263,9 +278,9 @@ function toggleNavbarContainer() {
         toggleIcon.classList.add('navbar-rotate');
         if (conversationListStyles.position === 'absolute') {
             if (conversationListStyles.width === '200px') {
-                dependentElement.style.left = "210px";
+                dependentElement.style.left = "200px";
             } else {
-                dependentElement.style.left = "310px";
+                dependentElement.style.left = "300px";
             }
         }
     } else {
@@ -320,9 +335,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (navbarElementStyles.display === 'flex' && navbarElementStyles.position === 'absolute') {
         if (navbarElementStyles.width === '200px') {
-            navbarToggleContainer.style.left = "210px";
+            navbarToggleContainer.style.left = "200px";
         } else {
-            navbarToggleContainer.style.left = "310px";
+            navbarToggleContainer.style.left = "300px";
         }
     } else {
         navbarToggleContainer.style.left = "0px";
@@ -339,9 +354,9 @@ document.addEventListener('DOMContentLoaded', function () {
 
         if (navbarElementStyle.display === 'flex' && navbarElementStyle.position === 'absolute') {
             if (navbarElementStyles.width === '200px') {
-                navbarToggleContainer.style.left = "210px";
+                navbarToggleContainer.style.left = "200px";
             } else {
-                navbarToggleContainer.style.left = "310px";
+                navbarToggleContainer.style.left = "300px";
             }
         } else {
             navbarToggleContainer.style.left = "0px";
@@ -394,6 +409,26 @@ document.addEventListener('DOMContentLoaded', function () {
             // Update the iframe to show the selected PDF
             pdfViewer.src = this.getAttribute('data-url');
         });
+    });
+    document.addEventListener('click', function (event) {
+        const conversationList = document.getElementById('navbar');
+        const toggleIcon = document.getElementById('toggle-navbar-icon');
+        const dependentElement = document.querySelector('.toggle-navbar-container');
+        const conversationListStyles = window.getComputedStyle(conversationList);
+
+        // Only apply the close behavior if the navbar is absolute and visible
+        if (conversationListStyles.position === 'absolute' && conversationList.style.display !== 'none') {
+            // If the click target is not inside the navbar, toggle icon, or the dependent element, close the navbar.
+            if (
+                !conversationList.contains(event.target) &&
+                !toggleIcon.contains(event.target) &&
+                !dependentElement.contains(event.target)
+            ) {
+                conversationList.style.display = 'none';
+                toggleIcon.classList.remove('navbar-rotate');
+                dependentElement.style.left = "0px";
+            }
+        }
     });
 });
 
@@ -547,11 +582,27 @@ function showConversations() {
     })
 }
 
+// Escape special HTML characters to prevent HTML injection
+function escapeHTML(str) {
+    return str.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+}
+
+
 function showMessages(messages) {
     const messagesDiv = document.getElementById('messages');
     messagesDiv.innerHTML = '';
     if (messages.length === 0) {
         showWelcomeMessage();
+        showConversationStarters();
+    } else {
+        const convStarters = document.querySelector('.conversation-starters');
+        if (convStarters) {
+            convStarters.remove();
+        }
     }
     messages.forEach(msg => {
         const messageContainerDiv = document.createElement('div');
@@ -562,34 +613,40 @@ function showMessages(messages) {
         // Prepare extra content for assistant messages
         let extraContent = '';
         if (msg.role === 'assistant') {
-            // If the assistant message has sources, add a toggle button and a sources list container
             if (msg.sources && msg.sources.length > 0) {
                 extraContent = `
-            <button class="toggle-button">Show Sources</button>
-            <div class="sources-list">
-              <ul>
-                ${msg.sources.map(source => `<li><a href="${source.url}">${source.document_name}</a></li>`).join('')}
-              </ul>
-            </div>
-            <div class="message-side-container">
-              <div class="message-side-button-container"></div>
-            </div>
-          `;
+                  <button class="toggle-button">
+                    Show Sources <i class="fa-solid fa-angle-right"></i>
+                  </button>
+                  <div class="sources-list">
+                    <ul>
+                      ${msg.sources.map(source => `<li><a href="${source.url}">${source.document_name}</a></li>`).join('')}
+                    </ul>
+                  </div>
+                  <div class="message-side-container">
+                    <div class="message-side-button-container"></div>
+                  </div>
+                `;
             } else {
                 extraContent = `
-            <div class="message-side-container">
-              <div class="message-side-button-container"></div>
-            </div>
-          `;
+                  <div class="message-side-container">
+                    <div class="message-side-button-container"></div>
+                  </div>
+                `;
             }
         }
-
+        console.log(msg.text)
+        // For assistant messages, use md.render, for user messages, escape HTML before inserting.
         messageContainerDiv.innerHTML = `
-        <div class="${msg.role === 'assistant' ? `${msg.role}-response` : `${msg.role}-message`}">
-          ${md.render(msg.text)}
+        <div class="${msg.role === 'assistant' ? 'assistant-response' : 'user-message'}">
+          ${msg.role === 'assistant'
+                ? md.render(msg.text)
+                : `<p>${escapeHTML(msg.text.trim())}</p>`
+            }
         </div>
         ${msg.role === 'assistant' ? extraContent : ''}
       `;
+
 
         messagesDiv.appendChild(messageContainerDiv);
 
@@ -606,10 +663,11 @@ function showMessages(messages) {
                 toggleButton.addEventListener('click', () => {
                     if (sourcesList.style.display === 'none' || sourcesList.style.display === '') {
                         sourcesList.style.display = 'block';
-                        toggleButton.textContent = 'Hide Sources';
+                        toggleButton.innerHTML = 'Hide Sources <i class="fa-solid fa-angle-down"></i>';
+                        sourcesList.scrollIntoView({ behavior: 'smooth', block: 'end' });
                     } else {
                         sourcesList.style.display = 'none';
-                        toggleButton.textContent = 'Show Sources';
+                        toggleButton.innerHTML = 'Show Sources <i class="fa-solid fa-angle-right"></i>';
                     }
                 });
 
@@ -625,8 +683,8 @@ function showMessages(messages) {
             }
         }
     });
+    scrollToBottom();
 }
-
 
 
 
@@ -681,6 +739,11 @@ async function sendMessage() {
             welcomeMessage.remove();
         }
 
+        const convStarters = document.querySelector('.conversation-starters');
+        if (convStarters) {
+            convStarters.remove();
+        }
+
         const key = messageInput.dataset.conversationKey;
         const conversation = getConversation(key);
         const trimmedConversation = conversation.messages.slice(-5);
@@ -721,6 +784,7 @@ async function sendMessage() {
         fastForwardButton.addEventListener('click', () => {
             fastForward = true;
         });
+        scrollToBottom();
 
         try {
             const response = await fetch('/chat/chat_api/', {
@@ -754,8 +818,9 @@ async function sendMessage() {
                                 collectedMessage += data.message;
                                 tempMessageDiv.innerHTML = md.render(collectedMessage);
                                 renderMathInElement(tempMessageDiv);
+                                scrollOnMessage();
                                 if (!fastForward) {
-                                    await sleep(20);
+                                    await sleep(10);
                                 }
                             } else if (data.role === 'assistant_sources') {
                                 // Save sources for later storage
@@ -776,15 +841,16 @@ async function sendMessage() {
 
                                 // Create a toggle button for the sources list
                                 const toggleButton = document.createElement('button');
-                                toggleButton.textContent = 'Show Sources';
+                                toggleButton.innerHTML = 'Show Sources <i class="fa-solid fa-angle-right"></i>';
                                 toggleButton.classList.add('toggle-button');
                                 toggleButton.addEventListener('click', () => {
                                     if (sourcesListDiv.style.display === 'none' || sourcesListDiv.style.display === '') {
                                         sourcesListDiv.style.display = 'block';
-                                        toggleButton.textContent = 'Hide Sources';
+                                        toggleButton.innerHTML = 'Hide Sources <i class="fa-solid fa-angle-down"></i>';
+                                        sourcesListDiv.scrollIntoView({ behavior: 'smooth', block: 'end' });
                                     } else {
                                         sourcesListDiv.style.display = 'none';
-                                        toggleButton.textContent = 'Show Sources';
+                                        toggleButton.innerHTML = 'Show Sources <i class="fa-solid fa-angle-right"></i>';
                                     }
                                 });
 
@@ -810,6 +876,7 @@ async function sendMessage() {
             }
 
             fastForwardButton.remove();
+            scrollOnMessage();
 
             // Save the final assistant message with collected sources (or empty array if none)
             const assistantMessage = {
@@ -916,4 +983,54 @@ function openDocumentInModal(url) {
             btn.classList.remove('active');
         }
     });
+}
+
+
+function showConversationStarters() {
+    const inputContainer = document.querySelector('.input-container');
+    // Only insert if not already present
+    if (!document.querySelector('.conversation-starters')) {
+        const conversationStartersHTML = `
+            <div class="conversation-starters">
+                <button class="starter-btn" onclick="selectConversationStarter('Tell me about your background.')">
+                    Tell me about your background.
+                </button>
+                <button class="starter-btn" onclick="selectConversationStarter('What are your key achievements?')">
+                    What are your key achievements?
+                </button>
+                <button class="starter-btn" onclick="selectConversationStarter('Can you describe one of your projects?')">
+                    Can you describe one of your projects?
+                </button>
+            </div>
+        `;
+        // Insert above the input container
+        inputContainer.insertAdjacentHTML('beforebegin', conversationStartersHTML);
+    }
+}
+
+
+function selectConversationStarter(text) {
+    const messageInput = document.getElementById('userInput');
+    messageInput.value = text;
+}
+
+
+function scrollToBottom() {
+    const messagesDiv = document.querySelector('.chat-container');
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}
+
+
+function scrollOnMessage() {
+    const chatContainer = document.querySelector('.chat-container');
+    const threshold = 50; // pixels from bottom to auto-scroll
+    const distanceFromBottom = chatContainer.scrollHeight - chatContainer.scrollTop - chatContainer.clientHeight;
+    if (distanceFromBottom <= threshold) {
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
+function isToggleInLastAssistantMessage(toggleButton) {
+    const chatContainer = document.querySelector('.chat-container');
+    return chatContainer.lastElementChild.contains(toggleButton);
 }

@@ -116,7 +116,7 @@ body {
   border-radius: 20px;
   width: 50%;
   align-self: center;
-  flex-direction: column;
+  /* flex-direction: column; */
   margin-bottom: 20px;
 }
 
@@ -233,7 +233,7 @@ button {
   width: 14px;
   left: 2px;
   bottom: 2px;
-  background-color: var(--reversetext-light);
+  background-color: #000000;
   transition: .4s;
   border-radius: 50%;
 }
@@ -280,7 +280,7 @@ input:checked+.theme-slider:before {
   align-items: center;
   width: fit-content;
   font-size: small;
-  z-index: 9000;
+  z-index: 1000;
 }
 
 
@@ -394,6 +394,7 @@ pre {
   color: var(--text-light);
   border: none;
   padding: 0;
+  align-content: center;
 }
 
 #userInput:focus {
@@ -522,6 +523,7 @@ pre {
 
 .user-message p {
   margin: 0;
+  white-space: pre-wrap;
 }
 
 .assistant-response-container {
@@ -541,12 +543,13 @@ pre {
 .welcome-message {
   align-items: center;
   justify-content: center;
-  margin-left: 25%;
-  margin-right: 25%;
+  margin-left: 20%;
+  margin-right: 20%;
   margin-top: 10vh;
   background-color: var(--input-light);
   padding: 3rem;
   border-radius: 25px;
+  max-width: 900px;
 }
 
 .welcome-message p {
@@ -807,13 +810,16 @@ pre {
 }
 
 .toggle-button {
-  margin-top: 0.5rem;
   padding: 0.5rem 1rem;
-  background-color: var(--hover-light);
+  background-color: transparent;
   color: var(--text-light);
   border: none;
   border-radius: 8px;
   cursor: pointer;
+}
+
+.toggle-button i {
+  font-size: small;
 }
 
 /* The sources list, hidden by default, also wraps to a new line */
@@ -839,6 +845,29 @@ pre {
 
 .sources-list li a {
   color: var(--text-light);
+}
+
+.conversation-starters {
+  width: 80%;
+  margin-bottom: 10px;
+  align-self: center;
+  display: flex;
+  gap: 5px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.starter-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 5px;
+  cursor: pointer;
+  background-color: var(--input-light);
+  color: var(--text-light);
+}
+
+.starter-btn:hover {
+  background-color: var(--hover-light);
 }
 
 @keyframes spin {
@@ -890,7 +919,7 @@ pre {
   }
 
   .welcome-message {
-    margin-top: unset;
+    margin-top: 5vh;
   }
 }
 
