@@ -753,7 +753,7 @@ pre {
 /* Modal body layout */
 .modal-body {
   display: flex;
-  height: 100%;
+  height: calc(100% - 70px);
   background-color: var(--content-light);
   /* Adjust as needed */
 }
@@ -912,6 +912,20 @@ pre {
     position: absolute;
     z-index: 1050;
     border-right: 1px solid var(--hover-light);
+  }
+
+  .modal-body {
+    flex-direction: column;
+  }
+
+  .modal-sidebar {
+    width: unset;
+    min-height: 266px;
+  }
+
+  .modal-content {
+    width: unset;
+    height: 100%;
   }
 }
 
