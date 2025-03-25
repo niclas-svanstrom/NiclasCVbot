@@ -791,6 +791,14 @@ async function sendMessage() {
                 },
                 body: JSON.stringify({ message: message, conversation: trimmedConversation }),
             });
+            if (response.status === 429) {
+                throw new Error("Too many requests. Please wait a moment before sending another message.");
+            }
+            if (!response.ok) {
+                // Handle HTTP errors
+                const errorText = await response.text();
+                throw new Error(`Server Error: ${response.status} - ${errorText}`);
+            }
 
             const reader = response.body.getReader();
             let decoder = new TextDecoder('utf-8');
@@ -887,7 +895,10 @@ async function sendMessage() {
             createCopyButtons(buttonContainer, tempMessageContainerDiv);
 
         } catch (error) {
-            alert('Error: ' + error.message);
+            fastForwardButton.remove();
+            console.error('Fetch error:', error.message);
+            tempMessageDiv.textContent = error.message;
+            tempMessageDiv.style.color = "red"; // Make the error message stand out
         }
     }
 }

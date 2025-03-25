@@ -7,6 +7,10 @@ import json
 from .utils import get_embedding
 from .models import Document, DocumentChunk
 from openai import OpenAI
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .serializers import MessageSerializer 
 
 client = OpenAI()
 
@@ -143,146 +147,11 @@ def stream_response(user_input, conversation):
             'sources': sources_list
         }) + "\n"
 
-
-    # stream = client.chat.completions.create(
-    #     model="gpt-4o",
-    #     messages=messages,
-    #     stream=True,
-    #     tools=tools
-    # )
-    
-    # collected_text = ""
-    # final_tool_calls = {}  # To accumulate tool_calls from the stream
-
-    # # Process each chunk from the stream.
-    # for chunk in stream:
-    #     delta = chunk.choices[0].delta
-    #     print(chunk)
-    #     for tool_call in delta.tool_calls or []:
-    #         index = tool_call.index
-
-    #         if index not in final_tool_calls:
-    #             final_tool_calls[index] = tool_call
-
-    #         final_tool_calls[index].function.arguments += tool_call.function.arguments
-
-    #     # Process and stream regular text content.
-    #     if delta.content is not None:
-    #         collected_text += delta.content
-    #         yield json.dumps({
-    #             "role": "assistant",
-    #             "message": delta.content
-    #         }) + "\n"
-    # print(final_tool_calls)
-    # # After processing the stream, check if we have a tool call.
-    # if 0 in final_tool_calls:
-    #     tool_call = final_tool_calls[0]
-    #     # Build an assistant message with the complete tool call details.
-
-    #     args = json.loads(tool_call.function.arguments)
-
-    #     result = search_documents(args["query"])
-    #     sources = {}
-    #     for chunk_obj in result:
-    #         doc = chunk_obj.document
-    #         sources[doc.document_name] = doc.file.url
-    #     sources_list = [{'document_name': name, 'url': url} for name, url in sources.items()]
-    #     tool_message = {
-    #         "role": "tool",
-    #         "tool_call_id": str(getattr(tool_call, "index", None)),
-    #         "content": str(sources_list)
-    #     }
-    #     messages.append(tool_message)
-    #     print(messages)
-    #     final_completion = client.chat.completions.create(
-    #         model="gpt-4o",
-    #         messages=messages,
-    #         stream=True,
-    #         tools=tools
-    #     )
-    #     for chunk in final_completion:
-    #         if chunk.choices and chunk.choices[0].delta.content is not None:
-    #             yield json.dumps({
-    #                 "role": "assistant",
-    #                 "message": chunk.choices[0].delta.content
-    #             }) + "\n"
-    #     yield json.dumps({
-    #         'role': 'assistant_sources',
-    #         'sources': sources_list
-    #     }) + "\n"
-
-
-
-
-
-    # streaming_chunks = ['Hello', ' I', ' am', ' Niclas', ' CV', ' AI', ' Chatbot', ' how', ' can', ' I', ' help', ' you?']
-    # for chunk in streaming_chunks:
-    #     yield json.dumps({
-    #         'role': 'assistant',
-    #         'message': chunk
-    #     }) + "\n"
-
-    # sources = {}
-    # for chunk in closest_chunks:
-    #     doc = chunk.document
-    #     # Use the document_name and file URL; duplicates will be merged.
-    #     sources[doc.document_name] = doc.file.url
-
-    # sources_list = [{'document_name': name, 'url': url} for name, url in sources.items()]
-
-    # # Yield a final message with the sources list
-    # yield json.dumps({
-    #     'role': 'assistant_sources',
-    #     'sources': sources_list
-    # }) + "\n"
-    # for chunk in closest_chunks:
-    #     yield f"data: {chunk.text}\n\n"
-
-# def chat_with_resume(request):
-#     """SSE endpoint that streams responses for a given query."""
-#     user_input = request.GET.get("query", "")
-#     return StreamingHttpResponse(
-#         stream_response(user_input),
-#         content_type="text/event-stream"
-#     )
-
-
-
-
-# def stream_response(user_message, conversation, selected_version):
-#     print(selected_version)
-#     try:
-#         messages = [{"role": "system",
-#                     "content": "Assistant is a large language model trained by OpenAI."}]
-#         conversation = [{"role": message['role'],
-#                         "content": message['text']} for message in conversation]
-#         messages.extend(conversation)
-#         messages.append({"role": "user", "content": user_message})
-
-#         stream = client.chat.completions.create(
-#             model="gpt-4o",
-#             messages=messages,
-#             stream=True
-#         )
-#         for chunk in stream:
-#             print(chunk)
-#             if chunk.choices and chunk.choices[0].delta.content is not None:
-#                 assistant_message = chunk.choices[0].delta.content
-#                 assistant_message = assistant_message.replace('\\\\', '\\\\\\\\')
-#                 yield json.dumps({
-#                     'role': 'assistant',
-#                     'message': assistant_message
-#                 }) + "\n"
-#     except Exception as e:
-#         yield json.dumps({'error': str(e)}) + "\\n"
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import status
-from .serializers import MessageSerializer 
+from rest_framework.throttling import AnonRateThrottle
 
     
 class ChatApiView(APIView):
+    throttle_classes = [AnonRateThrottle]
     def post(self, request):
         serializer = MessageSerializer(data=request.data)
         if serializer.is_valid():
