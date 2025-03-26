@@ -545,7 +545,7 @@ pre {
   justify-content: center;
   margin-left: 20%;
   margin-right: 20%;
-  margin-top: 10vh;
+  margin-top: 20vh;
   background-color: var(--input-light);
   padding: 3rem;
   border-radius: 25px;
@@ -936,6 +936,7 @@ pre {
 
   .welcome-message {
     margin-top: 5vh;
+    padding: 2rem;
   }
 }
 

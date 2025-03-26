@@ -690,8 +690,8 @@ function showWelcomeMessage() {
     messagesDiv.innerHTML = `
     <div class="welcome-message">
         <div class="welcome-message-container">
-            <h3 style="text-align: center;">Welcome to Niclas CV chatbot</h3> <br>
-            <p>Welcome! I'm your personal Resume ChatBot, built with state-of-the-art retrieval-augmented generation (RAG) technology. I can help you explore my professional journey—from my CV and key achievements to insights about past projects and work experiences. Ask me anything about my background, skills, or milestones, and I'll provide the detailed information you need. Let's get started!</p>
+        <h3 style="text-align: center;">Welcome to Niclas CV Chatbot</h3> 
+        <p>Hi, I'm here to help you explore Niclas professional journey. How can I assist you today?</p>
         </div>
     </div>
     `;
